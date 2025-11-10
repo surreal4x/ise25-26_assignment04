@@ -70,6 +70,30 @@ Create a POS based on an OpenStreetMap node:
 curl --request POST http://localhost:8080/api/pos/import/osm/5589879349 # set a valid OSM node ID here
 ```
 
+The OpenStreetMap import feature allows you to create POS entries from existing OSM nodes. The system will:
+- Fetch node data from OpenStreetMap
+- Extract relevant information (name, address, etc.)
+- Automatically determine the POS type based on OSM tags:
+  - `amenity=cafe` → CAFE
+  - `shop=bakery` → BAKERY
+  - `amenity=cafeteria` → CAFETERIA
+  - `vending=coffee` → VENDING_MACHINE
+- Generate a rich description from available tags (operator, cuisine, opening hours)
+- Determine the campus based on coordinates (currently defaults to ALTSTADT)
+
+Required OSM node tags:
+- `name`: The name of the location
+- `addr:street`: Street name
+- `addr:housenumber`: Building number
+- `addr:postcode`: Valid postal code
+- `addr:city`: City name
+
+Optional tags that enhance the POS description:
+- `operator`: Business operator information
+- `cuisine`: Type of food/beverages served
+- `opening_hours`: Operating hours
+- `description`: Custom description
+
 #### Update POS
 
 Update title and description:

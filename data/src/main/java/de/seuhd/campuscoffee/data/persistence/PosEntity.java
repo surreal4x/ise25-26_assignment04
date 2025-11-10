@@ -29,6 +29,9 @@ public class PosEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "osm_node_id", unique = true)
+    private Long osmNodeId;
+
     @Column(unique = true)
     private String name;
 

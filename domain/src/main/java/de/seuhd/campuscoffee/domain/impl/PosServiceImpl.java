@@ -81,23 +81,132 @@ public class PosServiceImpl implements PosService {
 
     /**
      * Converts an OSM node to a POS domain object.
-     * Note: This is a stub implementation and should be replaced with real mapping logic.
      */
     private @NonNull Pos convertOsmNodeToPos(@NonNull OsmNode osmNode) {
-        if (osmNode.nodeId().equals(5589879349L)) {
-            return Pos.builder()
-                    .name("Rada Coffee & Rösterei")
-                    .description("Caffé und Rösterei")
-                    .type(PosType.CAFE)
-                    .campus(CampusType.ALTSTADT)
-                    .street("Untere Straße")
-                    .houseNumber("21")
-                    .postalCode(69117)
-                    .city("Heidelberg")
-                    .build();
-        } else {
+        // First validate all required fields are present
+        if (!osmNode.isValidPos()) {
             throw new OsmNodeMissingFieldsException(osmNode.nodeId());
         }
+
+        // Extract all required fields using the helper methods
+        String name = osmNode.getName();
+        String street = osmNode.getStreet();
+        String houseNumber = osmNode.getHouseNumber();
+        String postalCodeStr = osmNode.getPostalCode();
+        String city = osmNode.getCity();
+
+        // Additional validation for name since it's crucial for our domain
+        if (name == null || name.trim().isEmpty()) {
+            log.warn("OSM node {} has an empty name tag", osmNode.nodeId());
+            throw new OsmNodeMissingFieldsException(osmNode.nodeId());
+        }
+        
+        int postalCode;
+        try {
+            postalCode = Integer.parseInt(postalCodeStr);
+        } catch (NumberFormatException e) {
+            throw new OsmNodeMissingFieldsException(osmNode.nodeId());
+        }
+        
+        // Determine the POS type based on OSM tags
+        PosType type = determinePosType(osmNode);
+        
+        // Determine campus based on coordinates
+        CampusType campus = determineCampus(osmNode.latitude(), osmNode.longitude());
+        
+        // Build a comprehensive description from available tags
+        String description = buildDescription(osmNode);
+        
+        if (description.isEmpty()) {
+            description = name;
+        }
+
+        return Pos.builder()
+                .name(name)
+                .description(description)
+                .type(type)
+                .campus(campus)
+                .street(street)
+                .houseNumber(houseNumber)
+                .postalCode(postalCode)
+                .city(city)
+                .osmNodeId(osmNode.nodeId())
+                .build();
+    }
+
+    /**
+     * Determines the POS type based on OSM tags.
+     * @param osmNode The OSM node containing the tags
+     * @return The determined POS type
+     */
+    private PosType determinePosType(OsmNode osmNode) {
+        String vendingTag = osmNode.getTag("vending");
+        String shopTag = osmNode.getTag("shop");
+        String amenityTag = osmNode.getTag("amenity");
+
+        if (vendingTag != null && vendingTag.contains("coffee")) {
+            return PosType.VENDING_MACHINE;
+        } else if ("bakery".equals(shopTag)) {
+            return PosType.BAKERY;
+        } else if ("cafeteria".equals(amenityTag)) {
+            return PosType.CAFETERIA;
+        }
+
+        // Default to CAFE if no specific type could be determined
+        return PosType.CAFE;
+    }
+
+    /**
+     * Determines the campus type based on coordinates.
+     * Current implementation defaults to ALTSTADT, but could be extended
+     * to use actual coordinate boundaries for different campuses.
+     * 
+     * @param latitude The location's latitude
+     * @param longitude The location's longitude
+     * @return The determined campus type
+     */
+    private CampusType determineCampus(Double latitude, Double longitude) {
+        // TODO: Implement actual coordinate-based campus determination
+        // For now, default to ALTSTADT
+        return CampusType.ALTSTADT;
+    }
+
+    /**
+     * Builds a comprehensive description from available OSM tags.
+     * @param osmNode The OSM node containing the tags
+     * @return A description string built from relevant tags
+     */
+    private String buildDescription(OsmNode osmNode) {
+        StringBuilder description = new StringBuilder();
+
+        // Add operator information if available
+        String operator = osmNode.getTag("operator");
+        if (operator != null) {
+            description.append(operator).append(" ");
+        }
+
+        // Add cuisine information if available
+        String cuisine = osmNode.getTag("cuisine");
+        if (cuisine != null) {
+            description.append("serving ").append(cuisine).append(" ");
+        }
+
+        // Add opening hours if available
+        String hours = osmNode.getTag("opening_hours");
+        if (hours != null) {
+            description.append("(Open: ").append(hours).append(") ");
+        }
+
+        // Use explicit description tag if available
+        String explicitDesc = osmNode.getTag("description");
+        if (explicitDesc != null) {
+            if (description.length() > 0) {
+                description.append("- ");
+            }
+            description.append(explicitDesc);
+        }
+
+        return description.toString().trim();
     }
 
     /**

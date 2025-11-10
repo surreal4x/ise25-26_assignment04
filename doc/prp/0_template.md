@@ -4,37 +4,43 @@
 You are a senior software engineer.
 Use the information below to implement a new feature or improvement in this software project.
 
+## Context
+
+**Situation**: The project "CampusCoffee" needs an automatic way of importing POS-Data based on an existing https://www.openstreetmap.org entry. You will plan, engineer and implement the feature based on the environment data given so that it works with the already existent structure.
+
 ## Goal
 
-**Feature Goal**: [Specific, measurable end state of what needs to be built]
+**Feature Goal**: [import feature for POS-Data read from specified openstreetmap entrys to update or expand the database]
 
-**Deliverable**: [Concrete artifact - API endpoint, service class, integration, etc.]
+**Deliverable**: [e.g. https://www.openstreetmap.org/api/0.6/node/5589879349]
 
-**Success Definition**: [How you'll know this is complete and working]
+**Success Definition**: [adding a fitting link to a curl command enables the user to automatically add all the important info without doing that manually. In short automization of e.g. the command: curl --header "Content-Type: application/json" --request POST --data '{"name":"New Café","description":"Description","type":"CAFE","campus":"ALTSTADT","street":"Hauptstraße","houseNumber":"100","postalCode":69117,"city":"Heidelberg"}' http://localhost:8080/api/pos]
 
 ## User Persona (if applicable)
 
-**Target User**: [Specific user type - developer, end user, admin, etc.]
+**Target User**: [Specific user type: end user, user expanding the data base of the app e.g. student at the local university]
 
-**Use Case**: [Primary scenario when this feature will be used]
+**Use Case**: [When somebody wants to add a new POS e.g. new Café that is currently not in the Database or the Data about an already existent POS has to be updated]
 
-**User Journey**: [Step-by-step flow of how user interacts with this feature]
+**User Journey**: [the user copies an openstreetmap link then connects to the application selects update / add information and pastes the link. Then executes and the data is automatically saved in the predetermined structure]
 
-**Pain Points Addressed**: [Specific user frustrations this feature solves]
+**Pain Points Addressed**: [the high expense of time needed to manually create an entry]
 
 ## Why
 
-- [Business value and user impact]
+- [better accessibility and faster addition of data]
 - [Integration with existing features]
-- [Problems this solves and for whom]
+- [easier user handling of the tool]
 
 ## What
 
-[User-visible behavior and technical requirements]
+[requirements stated ahead]
 
 ### Success Criteria
 
-- [ ] [Specific measurable outcomes]
+- [new entry] [added to database]
+- [existing entry] [replaced with current information]
+- [invalid entry] [ignored and returning an error message including example usage]
 
 ## Documentation & References
 

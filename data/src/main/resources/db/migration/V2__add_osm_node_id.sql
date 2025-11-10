@@ -1,0 +1,1 @@
+ALTER TABLE pos ADD COLUMN osm_node_id bigint UNIQUE;

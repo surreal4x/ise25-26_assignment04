@@ -7,4 +7,8 @@ public class OsmNodeNotFoundException extends RuntimeException {
     public OsmNodeNotFoundException(Long posId) {
         super("The OpenStreetMap node with ID " + posId + " does not exist.");
     }
+
+    public OsmNodeNotFoundException(Long posId, Throwable cause) {
+        super("Failed to fetch OpenStreetMap node with ID " + posId + ": " + cause.getMessage(), cause);
+    }
 }

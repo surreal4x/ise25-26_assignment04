@@ -37,7 +37,8 @@ public record Pos(
         @NonNull String street,
         @NonNull String houseNumber,
         @NonNull Integer postalCode,
-        @NonNull String city
+        @NonNull String city,
+        @Nullable Long osmNodeId
 ) implements Serializable { // serializable to allow cloning (see TestFixtures class).
     @Serial
     private static final long serialVersionUID = 1L;
